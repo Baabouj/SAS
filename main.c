@@ -208,18 +208,18 @@ void addLoyaltyBonus(Accounts *accounts, int size)
 {
     system("cls");
     sort(accounts, size, 1);
-    if (size < 3)
-        puts("Oops! Operation can't be done!\nThere is less than 3 accounts!");
+    if (size <= 0)
+        puts("Oops! Operation can't be done!\nThere is no accounts yet!");
     else
     {
         int option;
         puts("\n\t\tBonus\n\nLoyalty Bonus will be Added To the Following Accounts:\n");
-        display(accounts, 3);
+        display(accounts, size < 3 ? size : 3);
         puts("\n\t- 1 - Continue\n\t- 2 - Back\n");
         scanOption(&option);
         if (option == 1)
         {
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < (size < 3 ? size : 3); i++)
                 (accounts + i)->amount *= 1.013;
             puts("\nLoyalty Bonus Added Successfully!");
         }
