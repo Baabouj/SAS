@@ -28,9 +28,7 @@ int main()
         int option;
 
         printf("\n\t\tMenu\n\n\t- 1 - Create An Account\n\t- 2 - Create New Accounts\n\t- 3 - Operations\n\t- 4 - Display\n\t- 5 - Loyality\n\t- 6 - Exit\n");
-
-        printf("\n\tChoose Your Option: ");
-        scanf("%d", &option);
+        scanOption(&option);
 
         switch (option)
         {
@@ -39,7 +37,6 @@ int main()
             puts("Creating New Account");
             accounts = realloc(accounts, (size + 1) * sizeof(Accounts));
             createNewAccounts(accounts, &size, 1);
-            printf("\n");
             break;
 
         case 2:
@@ -49,41 +46,35 @@ int main()
             scanf("%d", &number);
             accounts = realloc(accounts, (size + number) * sizeof(Accounts));
             createNewAccounts(accounts, &size, number);
-            printf("\n");
             break;
 
         case 3:
             system("cls");
             printf("\n\t\tOperations\n\n\t- 1 - Withdraw\n\t- 2 - Depose\n\t- 3 - Back\n");
-            scanf("%d", &number);
+            scanOption(&number);
             if (number == 3)
             {
                 system("cls");
                 break;
             }
             amountsOperations(accounts, size, number);
-            printf("\n");
             break;
 
         case 4:
             displayOperations(accounts, size);
-            printf("\n");
             break;
 
         case 5:
             addLoyaltyBonus(accounts, size);
-            printf("\n");
             break;
 
         case 6:
             repeat = 0;
             free(accounts);
-            printf("\n");
             break;
 
         default:
             puts("Command Not Found!");
-            printf("\n");
             break;
         }
     } while (repeat);
@@ -132,7 +123,7 @@ void amountsOperations(Accounts *accounts, int size, int operation)
             scanf("%f", &amount);
             int index = findIndex(accounts, size, query);
             (accounts + index)->amount -= amount;
-            displayOne(accounts + index);
+            display(accounts + index, 1);
             puts("Withdraw Operation is Done Succesfully!!");
         }
         else
@@ -148,7 +139,7 @@ void amountsOperations(Accounts *accounts, int size, int operation)
             scanf("%f", &amount);
             int index = findIndex(accounts, size, query);
             (accounts + index)->amount += amount;
-            displayOne(accounts + index);
+            display(accounts + index, 1);
             puts("Withdraw Operation is Done Succesfully!!");
         }
         else
@@ -167,7 +158,7 @@ void displayOperations(Accounts *accounts, int size)
     {
         system("cls");
         printf("\n\t\tAccounts\n\n\t- 1 - Display in Ascendant Order\n\t- 2 - Display in Descendant Order\n\t- 3 - Display in Ascendant Order Based on Amount\n\t- 4 - Display in Descendant Order Based on Amount\n\t- 5 - Search\n\t- 6 - Back\n");
-        scanf("%d", &option);
+        scanOption(&option);
         switch (option)
         {
         case 1:
@@ -186,7 +177,7 @@ void displayOperations(Accounts *accounts, int size)
             sort(accounts, size, 1);
             for (int i = 0; i < size; i++)
                 if ((accounts + i)->amount > amount)
-                    displayOne(accounts + i);
+                    display(accounts + i, 1);
             break;
 
         case 4:
@@ -195,13 +186,14 @@ void displayOperations(Accounts *accounts, int size)
             sort(accounts, size, 2);
             for (int i = 0; i < size; i++)
                 if ((accounts + i)->amount > amount)
-                    displayOne(accounts + i);
+                    display(accounts + i, 1);
             break;
 
         case 5:
             scanCard(query);
-            if (find(accounts, size, query))
-                findAndDisplay(accounts, size, query);
+            int index = findIndex(accounts, size, query);
+            if (index >= 0)
+                display(accounts + index, 1);
             else
                 printf("No Account With ID %s\n", query);
             break;
@@ -224,8 +216,7 @@ void addLoyaltyBonus(Accounts *accounts, int size)
         puts("\n\t\tBonus\n\nLoyalty Bonus will be Added To the Following Accounts:\n");
         display(accounts, 3);
         puts("\n\t- 1 - Continue\n\t- 2 - Back\n");
-        puts("\nChoose Your Option:");
-        scanf("%d", &option);
+        scanOption(&option);
         if (option == 1)
         {
             for (int i = 0; i < 3; i++)
@@ -237,17 +228,23 @@ void addLoyaltyBonus(Accounts *accounts, int size)
     }
 }
 
+void scanCard(char *query)
+{
+    puts("Enter CIN");
+    scanf("%s", query);
+}
+
+void scanOption(int *option)
+{
+    printf("\n\tChoose Your Option: ");
+    scanf("%d", option);
+}
+
 //Function to display accounts
 void display(Accounts *accounts, int size)
 {
     for (int i = 0; i < size; i++)
         printf("Full Name : %s %s , CIN: %s , Amount: %.2f\n", (accounts + i)->first_name, (accounts + i)->last_name, (accounts + i)->cin, (accounts + i)->amount);
-}
-
-//Function to display accounts
-void displayOne(Accounts *account)
-{
-    printf("Full Name : %s %s , CIN: %s , Amount: %.2f\n", account->first_name, account->last_name, account->cin, account->amount);
 }
 
 //Function to sort the accounts. if order = 1, the function will sort them in asc order. if not, it will sort them in desc order.
@@ -262,12 +259,6 @@ void sort(Accounts *accounts, int size, int order)
                 *(accounts + j) = *(accounts + j + 1);
                 *(accounts + j + 1) = temp;
             }
-}
-
-void scanCard(char *query)
-{
-    puts("Enter CIN");
-    scanf("%s", query);
 }
 
 //Function to find an account by its CIN, if it exist, the function will return 1, if it's not it will return 0.
@@ -286,12 +277,4 @@ int findIndex(Accounts *accounts, int size, char query[])
         if (strcmp((accounts + i)->cin, query) == 0)
             return i;
     return -1;
-}
-
-//Function to find an account by its CIN, if it exist, the function will display it.
-int findAndDisplay(Accounts *accounts, int size, char query[])
-{
-    for (int i = 0; i < size; i++)
-        if (find(accounts, size, query))
-            displayOne(accounts + i);
 }
